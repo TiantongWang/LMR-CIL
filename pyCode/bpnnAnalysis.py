@@ -23,9 +23,10 @@ from utils import *
 
 #%% All the parameters
 # number of features
-nFeature = 80
+nFeature = 112
 
-LOAD_FOLDER = '/Users/tiantong/Desktop/LMR/ICL_LMR/featureAndLabel/'
+# LOAD_FOLDER = '/Users/tiantong/Desktop/LMR/ICL_LMR/featureAndLabel/'
+LOAD_FOLDER = 'E:\\Work\\LMR-CIL\\featureAndLabel\\'
 
 # which classes you wanna use in training
 # aka, base class
@@ -78,7 +79,7 @@ kfold = KFold(n_folds, shuffle=True, random_state=42)
 
 for train_ix, test_ix in kfold.split(X):
 	# define model
-    model = defineBPModel(len(CLASS_FOR_TRAINING))
+    model = defineBPModel(nFeature, len(CLASS_FOR_TRAINING))
 	# select rows for train and test
     trainX, trainY, testX, testY = X[train_ix], yOneHot[train_ix], X[test_ix], yOneHot[test_ix]
     # standardize trainX
@@ -87,6 +88,7 @@ for train_ix, test_ix in kfold.split(X):
     # standardize testX
     testX = zscore.transform(testX)
 	# fit model
+    print('Train on %d samples, test on %d samples.' %(trainX.shape[0], testX.shape[0]))
     history = model.fit(trainX, trainY, epochs=5, batch_size=32, validation_data=(testX, testY), verbose=1)
 	# evaluate model
     _, acc = model.evaluate(testX, testY, verbose=0)

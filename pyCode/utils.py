@@ -40,25 +40,75 @@ def computeWaveformLen(dataMatrix):
     waveformLenVec = np.sum(absDiffMatrix, axis=0)
     return waveformLenVec
 
+def computeSkewness(dataMatrix):
+    '''
+    This function computes the skewness of each channel in dataMatrix.
+    INPUTS:
+        dataMatrix: a matrix of shape (m, n), m is number of samples, n is number of channels
+    RETURNS：
+        a vector that contains skewness of each channel
+    '''
+    # number of samples
+    m = dataMatrix.shape[0]
+    # mean of each channel
+    meanVec = np.mean(dataMatrix, axis=0)
+    # numerator (above)
+    numerator = np.sum((dataMatrix - meanVec) ** 3, axis=0) / m
+    # denominator (below)
+    denominator = (np.sum((dataMatrix - meanVec) ** 2, axis=0) / m) ** 1.5
+    
+    skewness = numerator / denominator
+    return skewness
+
+def computeKurtosis(dataMatrix):
+    '''
+    This function computes the kurtosis of each channel in dataMatrix.
+    INPUTS:
+        dataMatrix: a matrix of shape (m, n), m is number of samples, n is number of channels
+    RETURNS：
+        a vector that contains kurtosis of each channel
+    '''
+    # number of samples
+    m = dataMatrix.shape[0]
+    # mean of each channel
+    meanVec = np.mean(dataMatrix, axis=0)
+    # numerator (above)
+    numerator = np.sum((dataMatrix - meanVec) ** 4, axis=0) / m
+    # denominator (below)
+    denominator = (np.sum((dataMatrix - meanVec) ** 2, axis=0) / m) ** 2
+    
+    kurtosis = numerator / denominator
+    return kurtosis
+
 def winFeatExtract(data):
     '''
     This function extracts features within a windowed data.
     INPUTS:
-        data: a matrix with the size of (m, n), m is the number of samples, n
-        is the number of features.
+        data: a matrix with the size of (m, n), m is the number of samples
+        within a window, n is the number of features.
     RETURNS:
         a feature vector.
     '''
+    # mean of each channel
     meanVec = np.mean(data, axis=0)
+    # std of each channel
     stdVec = np.std(data, axis=0)
+    # max of each channel
     maxVec = np.max(data, axis=0)
+    # min of each channel
     minVec = np.min(data, axis=0)
+    # waveform length of each channel
     waveFormLenVec = computeWaveformLen(data)
+    # kurtosis of each channel
+    kurtosis = computeKurtosis(data)
+    # skewness of each channel
+    skewness = computeSkewness(data)
     
-    featureVec = np.concatenate((meanVec, stdVec, maxVec, minVec, waveFormLenVec))
+    featureVec = np.concatenate((meanVec, stdVec, maxVec, minVec, \
+                                 waveFormLenVec, kurtosis, skewness))
     return featureVec
     
-def featExtract(data, heelStrike, WIN_SIZE, STEP_SIZE):
+def featExtract(data, heelStrike, WIN_SIZE, STEP_SIZE, nFeature):
     '''
     Given data, and heelStrike points, extract feature with window size of
     WIN_SIZE, and incremental of STEP_SIZE
@@ -69,12 +119,13 @@ def featExtract(data, heelStrike, WIN_SIZE, STEP_SIZE):
         heelStrike: an array of size of (nHeelStrike, 1), heel strike points.
         WIN_SIZE: sliding window size.
         STEP_SIZE: sliding window step.
+        nFeature: total number of features that are extracted.
     RETURNS:
         a feature matrix with the size of (nWindow, nFeature)
     '''
     # number of gait cycles containing in data
     nGaitCycle = len(heelStrike) - 1
-    featureMatrix = np.empty((0, 80))
+    featureMatrix = np.empty((0, nFeature))
     for iGait in range(nGaitCycle):
         # start point of this gait cycle
         gaitStart = heelStrike[iGait, 0]
@@ -128,10 +179,11 @@ def dataPartition(data, heelStrike, WIN_SIZE, STEP_SIZE):
             tensor = np.concatenate((tensor, gaitDataWindow), axis=0)            
     return tensor
 
-def defineBPModel(nClass):
+def defineBPModel(nFeature, nClass):
     '''
     This function defines a BP neural network architecture.
     INPUTS:
+        nFeature: number of input features.
         nClass: the number of class you want to train.
     RETURNS:
         a compiled model.
@@ -140,7 +192,7 @@ def defineBPModel(nClass):
     model = Sequential()
     
     # the first layer
-    model.add(Dense(50, activation='relu', kernel_initializer='he_uniform', name='dense1', input_shape=(80, )))
+    model.add(Dense(50, activation='relu', kernel_initializer='he_uniform', name='dense1', input_shape=(nFeature, )))
     # the second layer
     model.add(Dense(25, activation='relu', kernel_initializer='he_uniform', name='dense2'))
     # the output layer
@@ -159,7 +211,7 @@ def defineCNNModel(nTimeStamp, nChannel, nClass):
     RETURNS:
         a compiled model.
     '''
-    
+    No 
     model = Sequential()
     # the first layer
     model.add(Conv1D(filters=32, kernel_size=3, activation='relu', input_shape=(nTimeStamp, nChannel)))

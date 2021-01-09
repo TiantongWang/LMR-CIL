@@ -10,8 +10,17 @@ from scipy.io import loadmat
 import numpy as np
 from utils import *
 #%% All the parameters
-BASE_FOLDER = '/Users/tiantong/Desktop/LMR/ICL_LMR/processedData/'
-SAVE_FOLDER = '/Users/tiantong/Desktop/LMR/ICL_LMR/featureAndLabel/'
+
+# These are folder path of Macbook
+# BASE_FOLDER = '/Users/tiantong/Desktop/LMR/ICL_LMR/processedData/'
+# SAVE_FOLDER = '/Users/tiantong/Desktop/LMR/ICL_LMR/featureAndLabel/'
+# LW_FOLDER = 'LW/'
+# RA_FOLDER = 'RA/'
+# RD_FOLDER = 'RD/'
+
+# These are the folder path of Win Laptop
+BASE_FOLDER = 'E:/Work/LMR-CIL/processedData/'
+SAVE_FOLDER = 'E:/Work/LMR-CIL/featureAndLabel/'
 LW_FOLDER = 'LW/'
 RA_FOLDER = 'RA/'
 RD_FOLDER = 'RD/'
@@ -29,7 +38,7 @@ WIN_SIZE = 50 # * 10 ms
 STEP_SIZE = 1 # * 10 ms
 
 # number of features
-nFeature = 80
+nFeature = 112
 ###############################################################################
 
 #%% Load .mat data, feature extraction, and save features
@@ -56,7 +65,7 @@ for itemDegree in LW_DEGREE:
         imuData = np.concatenate((imuShank, imuThigh), axis=1)
         
         # feature extraction for this file
-        featureMatrix = featExtract(imuData, heelStrike, WIN_SIZE, STEP_SIZE)
+        featureMatrix = featExtract(imuData, heelStrike, WIN_SIZE, STEP_SIZE, nFeature)
         totalFeatureMatrix = np.concatenate((totalFeatureMatrix, featureMatrix))
         
         message = 'LW: '+'degree_'+str(itemDegree)+' '+'file_'+str(jFile)
@@ -93,7 +102,7 @@ for itemDegree in RA_DEGREE:
         imuData = np.concatenate((imuShank, imuThigh), axis=1)
         
         # feature extraction for this file
-        featureMatrix = featExtract(imuData, heelStrike, WIN_SIZE, STEP_SIZE)
+        featureMatrix = featExtract(imuData, heelStrike, WIN_SIZE, STEP_SIZE, nFeature)
         totalFeatureMatrix = np.concatenate((totalFeatureMatrix, featureMatrix))
         
         message = 'RA: '+'degree_'+str(itemDegree)+' '+'file_'+str(jFile)
@@ -130,7 +139,7 @@ for itemDegree in RA_DEGREE:
         imuData = np.concatenate((imuShank, imuThigh), axis=1)
         
         # feature extraction for this file
-        featureMatrix = featExtract(imuData, heelStrike, WIN_SIZE, STEP_SIZE)
+        featureMatrix = featExtract(imuData, heelStrike, WIN_SIZE, STEP_SIZE, nFeature)
         totalFeatureMatrix = np.concatenate((totalFeatureMatrix, featureMatrix))
         
         message = 'RD: '+'degree_'+str(itemDegree)+' '+'file_'+str(jFile)
