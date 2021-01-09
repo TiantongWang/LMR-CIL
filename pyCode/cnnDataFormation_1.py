@@ -12,8 +12,17 @@ from scipy.io import loadmat
 import numpy as np
 from utils import *
 #%% All the parameters
-BASE_FOLDER = '/Users/tiantong/Desktop/LMR/ICL_LMR/processedData/'
-SAVE_FOLDER = '/Users/tiantong/Desktop/LMR/ICL_LMR/tensorAndLabel/'
+
+# These are folder path of Macbook
+# BASE_FOLDER = '/Users/tiantong/Desktop/LMR/ICL_LMR/processedData/'
+# SAVE_FOLDER = '/Users/tiantong/Desktop/LMR/ICL_LMR/tensorAndLabel/'
+# LW_FOLDER = 'LW/'
+# RA_FOLDER = 'RA/'
+# RD_FOLDER = 'RD/'
+
+# These are the folder path of Win Laptop
+BASE_FOLDER = 'E:/Work/LMR-CIL/processedData/'
+SAVE_FOLDER = 'E:/Work/LMR-CIL/tensorAndLabel/'
 LW_FOLDER = 'LW/'
 RA_FOLDER = 'RA/'
 RD_FOLDER = 'RD/'

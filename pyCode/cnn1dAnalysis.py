@@ -25,15 +25,20 @@ from utils import *
 nTimeStamp = 50
 nChannel = 16
 
-LOAD_FOLDER = '/Users/tiantong/Desktop/LMR/ICL_LMR/tensorAndLabel/'
+# file path for MacOS
+# LOAD_FOLDER = '/Users/tiantong/Desktop/LMR/ICL_LMR/tensorAndLabel/'
+
+# file path for windows
+LOAD_FOLDER = 'E:/Work/LMR-CIL/tensorAndLabel/'
 
 # which classes you wanna use in training
 # aka, base class
-CLASS_FOR_TRAINING = [1,5,10,13,17,22]
+# CLASS_FOR_TRAINING = [1,5,10,13,17,22]
+CLASS_FOR_TRAINING = [0,1,2,3,4,13,14,15,16]
 
 # incremental class
-CLASS_FOR_INCREMENTAL = [0,3,8,12,15,20,24]
-
+# CLASS_FOR_INCREMENTAL = [0,3,8,12,15,20,24]
+CLASS_FOR_INCREMENTAL = [7,9,12,19,21,24]
 #%% Load the basic class data set
 # All feature vecs in X participates in the training process
 X = np.empty((0, nTimeStamp, nChannel))
@@ -91,7 +96,8 @@ for train_ix, test_ix in kfold.split(X):
     testXFlatten = zscore.fit_transform(testXFlatten)
     testX = np.reshape(testXFlatten, (a, b, c))
 	# fit model
-    history = model.fit(trainX, trainY, epochs=5, batch_size=32, validation_data=(testX, testY), verbose=1)
+    print('Train on %d samples, test on %d samples.' %(trainX.shape[0], testX.shape[0]))
+    history = model.fit(trainX, trainY, epochs=10, batch_size=32, validation_data=(testX, testY), verbose=1)
 	# evaluate model
     _, acc = model.evaluate(testX, testY, verbose=0)
     print('> %.3f' % (acc * 100.0))
@@ -100,6 +106,9 @@ for train_ix, test_ix in kfold.split(X):
     histories.append(history)
     models.append(model)
 
+# retrieve the model with the best val acc
+bestModelIdx = scores.index(max(scores))
+model = models[bestModelIdx]
 #%% last layer tsne visualization
 ##train on all classes, visualize on all classes
 #
@@ -139,5 +148,5 @@ X_norm = (X_tsne - x_min) / (x_max - x_min)
 
 fig = plt.figure()
 ax = plt.gca()
-ax.scatter(X_tsne[:, 0], X_tsne[:, 1],s=0.5, marker='.', c=entirey)
+ax.scatter(X_tsne[:, 0], X_tsne[:, 1],s=20, marker='.', c=entirey)
 plt.show()
