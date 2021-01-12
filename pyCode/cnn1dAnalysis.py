@@ -19,17 +19,20 @@ from keras.models import Model
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
 from mpl_toolkits.mplot3d import Axes3D
+import pickle
 from utils import *
 
 #%% All the parameters
 nTimeStamp = 50
 nChannel = 16
 
-# file path for MacOS
+# load file path for MacOS
 # LOAD_FOLDER = '/Users/tiantong/Desktop/LMR/ICL_LMR/tensorAndLabel/'
 
-# file path for windows
+# load data path for windows
 LOAD_FOLDER = 'E:/Work/LMR-CIL/tensorAndLabel/'
+# save model path for windows
+SAVE_FOLDER = 'E:/Work/LMR-CIL/trainedModel/'
 
 # which classes you wanna use in training
 # aka, base class
@@ -74,7 +77,7 @@ for itemClass in entireClass:
 n_folds = 5
 
 # cache
-scores, histories, models= list(), list(), list()
+scores, histories, models, zscores= list(), list(), list(), list()
 
 
 kfold = KFold(n_folds, shuffle=True, random_state=42)
@@ -101,14 +104,23 @@ for train_ix, test_ix in kfold.split(X):
 	# evaluate model
     _, acc = model.evaluate(testX, testY, verbose=0)
     print('> %.3f' % (acc * 100.0))
-	# stores scores
+	# stores logs
     scores.append(acc)
     histories.append(history)
     models.append(model)
+    zscores.append(zscore)
 
-# retrieve the model with the best val acc
+# retrieve the model with the best val acc, and the corresponding scalar
 bestModelIdx = scores.index(max(scores))
 model = models[bestModelIdx]
+zscore = zscores[bestModelIdx]
+#%% Store the trained model
+
+# store the trained model
+model.save(SAVE_FOLDER + 'cnn1d.h5')
+# store the standard scalar
+pickle.dump(zscore, open(SAVE_FOLDER + 'cnn1d_scaler.pkl','wb'))
+# zscore = pickle.load(open('scaler.pkl', 'rb'))
 #%% last layer tsne visualization
 ##train on all classes, visualize on all classes
 #
@@ -129,24 +141,24 @@ model = models[bestModelIdx]
 
 #%% train on base classes, visualize on all classes
 
-# standardize entireX based on the training classes
-a, b, c = entireX.shape
-entireXFlatten = np.reshape(entireX, (a, b * c))
-entireXFlatten = zscore.fit_transform(entireXFlatten)
-entireX = np.reshape(entireXFlatten, (a, b, c))
+# # standardize entireX based on the training classes
+# a, b, c = entireX.shape
+# entireXFlatten = np.reshape(entireX, (a, b * c))
+# entireXFlatten = zscore.fit_transform(entireXFlatten)
+# entireX = np.reshape(entireXFlatten, (a, b, c))
 
 
-tsne = manifold.TSNE(n_components=2, init='pca', random_state=42)
-# peek at the last layer
-intermediate_layer_model = Model(inputs=model.input, outputs=model.get_layer('dense1').output)
-X_peek = intermediate_layer_model.predict(entireX)
-# tsne transform
-X_tsne = tsne.fit_transform(X_peek)
+# tsne = manifold.TSNE(n_components=2, init='pca', random_state=42)
+# # peek at the last layer
+# intermediate_layer_model = Model(inputs=model.input, outputs=model.get_layer('dense1').output)
+# X_peek = intermediate_layer_model.predict(entireX)
+# # tsne transform
+# X_tsne = tsne.fit_transform(X_peek)
 
-x_min, x_max = X_tsne.min(axis=0), X_tsne.max(axis=0)
-X_norm = (X_tsne - x_min) / (x_max - x_min)  
+# x_min, x_max = X_tsne.min(axis=0), X_tsne.max(axis=0)
+# X_norm = (X_tsne - x_min) / (x_max - x_min)  
 
-fig = plt.figure()
-ax = plt.gca()
-ax.scatter(X_tsne[:, 0], X_tsne[:, 1],s=20, marker='.', c=entirey)
-plt.show()
+# fig = plt.figure()
+# ax = plt.gca()
+# ax.scatter(X_tsne[:, 0], X_tsne[:, 1],s=20, marker='.', c=entirey)
+# plt.show()

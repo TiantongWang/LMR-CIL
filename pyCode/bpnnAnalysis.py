@@ -25,8 +25,11 @@ from utils import *
 # number of features
 nFeature = 112
 
+# file path for MacOS
 # LOAD_FOLDER = '/Users/tiantong/Desktop/LMR/ICL_LMR/featureAndLabel/'
-LOAD_FOLDER = 'E:\\Work\\LMR-CIL\\featureAndLabel\\'
+
+# file path for windows
+LOAD_FOLDER = 'E:/Work/LMR-CIL/featureAndLabel/'
 
 # which classes you wanna use in training
 # aka, base class
@@ -98,6 +101,9 @@ for train_ix, test_ix in kfold.split(X):
     histories.append(history)
     models.append(model)
 
+# retrieve the model with the best val acc
+bestModelIdx = scores.index(max(scores))
+model = models[bestModelIdx]
 #%% last layer tsne visualization
 # train on all classes, visualize on all classes
 

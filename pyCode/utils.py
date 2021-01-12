@@ -211,18 +211,17 @@ def defineCNNModel(nTimeStamp, nChannel, nClass):
     RETURNS:
         a compiled model.
     '''
-    No 
     model = Sequential()
-    # the first layer
+    # the first cnn layer
     model.add(Conv1D(filters=32, kernel_size=3, activation='relu', input_shape=(nTimeStamp, nChannel)))
-    # the second layer
+    # the second cnn layer
     model.add(Conv1D(filters=32, kernel_size=3, activation='relu'))
     # drop out
     model.add(Dropout(0.5))
     # max pool
     model.add(MaxPooling1D(pool_size=2))
     model.add(Flatten())
-    # the third layer
+    # the 1st FC layer
     model.add(Dense(50, activation='relu', name='dense1'))
     # output layer
     model.add(Dense(nClass, activation='softmax'))
